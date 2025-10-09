@@ -34,20 +34,33 @@
     border-radius: 8px;
     cursor: pointer;
   }
-  nav button:hover {
-    background: #007a3d;
-  }
+  nav button:hover { background: #007a3d; }
   .page { display: none; padding: 20px; }
   .active { display: block; }
+
+  /* VIP Plans Style */
   .plan {
     background-color: #111;
-    border: 3px solid #00ff66;
-    border-radius: 15px;
-    padding: 25px;
-    margin: 20px 0;
-    font-size: 18px;
-    box-shadow: 0 0 15px #00ff66;
+    border: 4px solid #00ff66;
+    border-radius: 20px;
+    padding: 35px;
+    margin: 25px 0;
+    font-size: 22px;
+    box-shadow: 0 0 25px #00ff66;
+    text-align: center;
   }
+  .plan button {
+    margin-top: 15px;
+    background-color: #00aa55;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .plan button:hover { background-color: #007a3d; }
+
   input, select {
     width: 95%;
     padding: 10px;
@@ -95,12 +108,13 @@
 <!-- Home -->
 <div id="home" class="page active">
   <h2>Investment Plans</h2>
-  <div class="plan">350 → 55 daily</div>
-  <div class="plan">720 → 110 daily</div>
-  <div class="plan">1500 → 220 daily</div>
-  <div class="plan">4000 → 440 daily</div>
-  <div class="plan">9000 → 990 daily</div>
-  <div class="plan">15000 → 1760 daily</div>
+
+  <div class="plan">350 → 55 daily<br><button onclick="showPage('deposit')">Buy Now</button></div>
+  <div class="plan">720 → 110 daily<br><button onclick="showPage('deposit')">Buy Now</button></div>
+  <div class="plan">1500 → 220 daily<br><button onclick="showPage('deposit')">Buy Now</button></div>
+  <div class="plan">4000 → 440 daily<br><button onclick="showPage('deposit')">Buy Now</button></div>
+  <div class="plan">9000 → 990 daily<br><button onclick="showPage('deposit')">Buy Now</button></div>
+  <div class="plan">15000 → 1760 daily<br><button onclick="showPage('deposit')">Buy Now</button></div>
 </div>
 
 <!-- Deposit -->
@@ -153,7 +167,7 @@
   function deposit() {
     const pin = document.getElementById('pin').value;
     if (pin === "7890") {
-      balance += 500; // example deposit amount
+      balance += 500; // example deposit
       document.getElementById('balance').innerText = balance;
       alert("Deposit Successful!");
     } else {
