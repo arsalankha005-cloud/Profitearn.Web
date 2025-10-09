@@ -1,576 +1,183 @@
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Investment Dashboard - VIP Plans</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Dashboard</title>
 <style>
-  :root{
-    --bg:#07121a;
-    --card:#0b1920;
-    --accent:#00b25a;
-    --accent-dark:#008a41;
-    --muted:#95a3a6;
-    --glass: rgba(255,255,255,0.03);
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #0b0b0b;
+    color: white;
+    margin: 0;
   }
-  *{box-sizing:border-box}
-  body{
-    margin:0;
-    font-family: "Segoe UI", Tahoma, Arial;
-    background: linear-gradient(180deg,#07121a 0%, #051216 100%);
-    color:#e6f7ee;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
+  header {
+    background-color: #00aa55;
+    text-align: center;
+    padding: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
   }
-
-  header{
-    position:sticky; top:0; z-index:10;
-    background:linear-gradient(90deg,var(--card), rgba(5,10,10,0.8));
-    padding:14px 18px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    border-bottom:1px solid rgba(0,0,0,0.25);
+  nav {
+    display: flex;
+    justify-content: space-around;
+    background-color: #111;
+    padding: 10px 0;
   }
-  header h1{margin:0; font-size:20px; color:var(--accent); letter-spacing:0.5px;}
-  .balance-btn{
-    background:#000;
-    color: #7cff9a;
-    border:2px solid #7cff9a;
-    padding:8px 14px;
-    border-radius:10px;
-    font-weight:600;
+  nav button {
+    background: #00aa55;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
   }
-
-  nav{
-    display:flex;
-    gap:10px;
-    padding:14px 18px;
-    justify-content:center;
-    background:transparent;
-    flex-wrap:wrap;
+  nav button:hover {
+    background: #007a3d;
   }
-  nav button{
-    border:none;
-    padding:10px 18px;
-    border-radius:10px;
-    background:var(--accent);
-    color:#01110a;
-    font-weight:700;
-    cursor:pointer;
-    box-shadow:0 6px 18px rgba(0,0,0,0.45);
+  .page { display: none; padding: 20px; }
+  .active { display: block; }
+  .plan {
+    background-color: #111;
+    border: 3px solid #00ff66;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    font-size: 18px;
+    box-shadow: 0 0 15px #00ff66;
   }
-  nav button.secondary{background:#0bb0ff; color:#002; }
-  nav button.warn{background:#f39c12;}
-  nav button.ghost{background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted)}
-
-  main{padding:20px; max-width:1100px; margin:0 auto;}
-
-  /* Plans style - big VIP boxes */
-  .plans-grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
-    gap:22px;
-    margin-top:18px;
+  input, select {
+    width: 95%;
+    padding: 10px;
+    margin: 8px 0;
+    background: #222;
+    color: #fff;
+    border: 1px solid #00ff66;
+    border-radius: 5px;
   }
-  .plan-card{
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.12));
-    border-radius:18px;
-    padding:22px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-    border:1px solid rgba(0,0,0,0.5);
-    position:relative;
-    overflow:hidden;
+  button.submit {
+    background: #00aa55;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
   }
-  .plan-title{color:var(--accent); font-size:22px; margin:0 0 10px 0; font-weight:800;}
-  .plan-detail{color:#cfeee0; margin:10px 0; font-size:16px;}
-  .plan-row{display:flex; justify-content:space-between; gap:8px; align-items:center; margin:10px 0;}
-  .plan-price{font-weight:800; font-size:18px;}
-  .plan-buy{
-    background:var(--accent);
-    color:#022;
-    padding:10px 16px;
-    border-radius:12px;
-    border:none;
-    font-weight:800;
-    cursor:pointer;
-  }
-
-  /* Deposit / Withdraw forms */
-  .card{background:var(--card); border-radius:12px; padding:18px; box-shadow:0 6px 20px rgba(0,0,0,0.6); border:1px solid rgba(0,0,0,0.4);}
-  label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px;}
-  input[type="text"], input[type="number"], input[type="password"], select{
-    width:100%;
-    padding:10px 12px;
-    border-radius:8px;
-    border:1px solid rgba(0,0,0,0.5);
-    background:#071a16;
-    color:#eaf8ee;
-    outline:none;
-    margin-bottom:10px;
-  }
-  .submit{background:var(--accent); border:none; color:#022; padding:10px 14px; font-weight:700; border-radius:10px; cursor:pointer;}
-  .submit.danger{background:#ff5c5c; color:#fff}
-
-  .payboxes{display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap;}
-  .paybox{flex:1 1 200px; background:var(--glass); padding:12px; border-radius:10px; border:1px solid rgba(0,0,0,0.4); text-align:center;}
-  .paybox strong{display:block; color:var(--accent); font-size:16px; margin-bottom:6px;}
-  .paybox small{display:block; color:var(--muted); font-size:13px;}
-
-  /* withdraw pending list */
-  .pending-list{margin-top:12px; display:flex; flex-direction:column; gap:8px;}
-  .pending-item{background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;}
-  .badge{background:#112; color:var(--accent); padding:6px 10px; border-radius:8px; font-weight:700;}
-
-  /* referral */
-  .ref-box{display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap;}
-  .ref-input{flex:1 1 300px; padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.4); background:#071a16; color:#eafff0}
-  .copy-btn{background:#0bb0ff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:700}
-
-  footer{padding:30px 0 60px; text-align:center; color:var(--muted)}
-  @media (max-width:480px){
-    header h1{font-size:18px}
-    .plan-title{font-size:18px}
+  button.submit:hover { background: #007a3d; }
+  .balance {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    background: #000;
+    border: 2px solid #00ff66;
+    padding: 6px 15px;
+    border-radius: 8px;
+    color: #00ff66;
   }
 </style>
 </head>
 <body>
+
 <header>
-  <h1>Dashboard</h1>
-  <div>
-    <button class="balance-btn" id="balanceBtn">Balance: Rs <span id="balance">0</span></button>
-  </div>
+  Investment Dashboard
+  <div class="balance">Balance: Rs <span id="balance">0</span></div>
 </header>
 
 <nav>
-  <button onclick="show('home')">Home</button>
-  <button onclick="show('deposit')">Deposit</button>
-  <button onclick="show('withdraw')">Withdraw</button>
-  <button onclick="show('referral')" class="secondary">Referral</button>
+  <button onclick="showPage('home')">Home</button>
+  <button onclick="showPage('deposit')">Deposit</button>
+  <button onclick="showPage('withdraw')">Withdraw</button>
+  <button onclick="showPage('referral')">Referral</button>
 </nav>
 
-<main>
-  <!-- HOME / PLANS -->
-  <section id="home" class="page">
-    <h2 style="color:var(--accent); margin:6px 0 0 0;">All Available VIP Plans (30 Days)</h2>
-    <p style="color:var(--muted); margin-top:6px">بڑے VIP-style باکسز — ہر پلان کا اپنا باکس ہے۔</p>
+<!-- Home -->
+<div id="home" class="page active">
+  <h2>Investment Plans</h2>
+  <div class="plan">350 → 55 daily</div>
+  <div class="plan">720 → 110 daily</div>
+  <div class="plan">1500 → 220 daily</div>
+  <div class="plan">4000 → 440 daily</div>
+  <div class="plan">9000 → 990 daily</div>
+  <div class="plan">15000 → 1760 daily</div>
+</div>
 
-    <div class="plans-grid" id="plansGrid">
-      <!-- JS will render plans here -->
-    </div>
-  </section>
+<!-- Deposit -->
+<div id="deposit" class="page">
+  <h2>Deposit Funds</h2>
+  <p><b>JazzCash:</b> 03218684114</p>
+  <p><b>EasyPaisa:</b> 03706502150</p>
+  <select id="depositMethod">
+    <option value="jazzcash">JazzCash</option>
+    <option value="easypaisa">EasyPaisa</option>
+  </select>
+  <input type="text" id="name" placeholder="Enter your name">
+  <input type="text" id="trx" placeholder="Transaction ID">
+  <input type="password" id="pin" placeholder="Enter PIN (7890)">
+  <button class="submit" onclick="deposit()">Submit</button>
+</div>
 
-  <!-- DEPOSIT -->
-  <section id="deposit" class="page" style="display:none; margin-top:18px;">
-    <h2 style="color:var(--accent);">Deposit Funds</h2>
-    <p style="color:var(--muted)">نیچے دئیے گئے نمبروں پر رقم بھیجیں — پھر فارم بھریں۔</p>
+<!-- Withdraw -->
+<div id="withdraw" class="page">
+  <h2>Withdraw Funds</h2>
+  <select id="withdrawMethod">
+    <option value="jazzcash">JazzCash</option>
+    <option value="easypaisa">EasyPaisa</option>
+  </select>
+  <input type="text" id="withdrawNumber" placeholder="Enter your number">
+  <input type="number" id="withdrawAmount" placeholder="Enter amount">
+  <button class="submit" onclick="withdraw()">Submit</button>
+  <p id="withdrawStatus"></p>
+</div>
 
-    <div class="card" style="margin-top:12px;">
-      <div class="payboxes">
-        <div class="paybox">
-          <strong>JazzCash</strong>
-          <small>03218684114</small>
-          <small>Send amount &amp; use Transaction ID in form</small>
-        </div>
-        <div class="paybox">
-          <strong>EasyPaisa</strong>
-          <small>03706502150</small>
-          <small>Send amount &amp; use Transaction ID in form</small>
-        </div>
-      </div>
-
-      <label>Payment Method</label>
-      <select id="depositMethod">
-        <option value="jazzcash">JazzCash</option>
-        <option value="easypaisa">EasyPaisa</option>
-      </select>
-
-      <label>آپ کا نام (Name)</label>
-      <input type="text" id="depositName" placeholder="Enter your name">
-
-      <label>Amount (Rs)</label>
-      <input type="number" id="depositAmount" placeholder="Amount you sent (e.g. 1500)">
-
-      <label>Transaction ID</label>
-      <input type="text" id="depositTrx" placeholder="Transaction ID from payment">
-
-      <label>PIN (Use: 7890)</label>
-      <input type="password" id="depositPin" placeholder="Enter PIN">
-
-      <button class="submit" onclick="handleDeposit()">Submit Deposit</button>
-
-      <div id="depositHistory" style="margin-top:14px; color:var(--muted); font-size:13px"></div>
-    </div>
-  </section>
-
-  <!-- WITHDRAW -->
-  <section id="withdraw" class="page" style="display:none; margin-top:18px;">
-    <h2 style="color:var(--accent);">Withdraw Funds</h2>
-    <div class="card" style="margin-top:12px;">
-      <label>Method</label>
-      <select id="withdrawMethod">
-        <option value="jazzcash">JazzCash</option>
-        <option value="easypaisa">EasyPaisa</option>
-      </select>
-
-      <label>Number</label>
-      <input type="text" id="withdrawNumber" placeholder="Enter your JazzCash / EasyPaisa number">
-
-      <label>Amount (Rs)</label>
-      <input type="number" id="withdrawAmount" placeholder="Amount to withdraw">
-
-      <button class="submit" onclick="handleWithdraw()">Submit Withdraw</button>
-
-      <div style="margin-top:12px;">
-        <h4 style="margin:6px 0;color:var(--muted)">Pending Withdrawals</h4>
-        <div class="pending-list" id="pendingList"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- REFERRAL -->
-  <section id="referral" class="page" style="display:none; margin-top:18px;">
-    <h2 style="color:var(--accent);">Referral Program</h2>
-    <div class="card" style="margin-top:12px;">
-      <p style="color:var(--muted)"><strong>Level 1 Commission:</strong> 10% &nbsp; &nbsp; <strong>Level 2:</strong> 4% &nbsp; &nbsp; <strong>Level 3:</strong> 1%</p>
-
-      <div class="ref-box">
-        <input type="text" id="refLink" class="ref-input" readonly>
-        <button class="copy-btn" onclick="copyRef()">Copy Link</button>
-      </div>
-
-      <p style="color:var(--muted); margin-top:12px">جتنے زیادہ لوگ آپ کے لنک سے آئیں گے، اتنا کمیشن ملے گا۔</p>
-    </div>
-  </section>
-
-  <footer>
-    © Investment Dashboard — Green &amp; Dark theme — Built for demo
-  </footer>
-</main>
+<!-- Referral -->
+<div id="referral" class="page">
+  <h2>Referral Program</h2>
+  <p>Level 1 Commission: <b>10%</b></p>
+  <p>Level 2 Commission: <b>4%</b></p>
+  <p>Level 3 Commission: <b>1%</b></p>
+  <p>Your Referral Link:</p>
+  <input type="text" readonly value="https://yourwebsite.com/ref?id=USER123" style="width:100%">
+</div>
 
 <script>
-  // ----- App State -----
-  const PIN_CODE = "7890";
-  const MS_ONE_HOUR = 3600000;
+  let balance = 0;
+  let pendingWithdraw = null;
 
-  let state = {
-    balance: 0,
-    userId: null,
-    pendingWithdraws: [], // {id, method, number, amount, requestedAt, status}
-    deposits: []
-  };
-  const timers = new Map(); // id -> timeoutId
-
-  // Plans data (as provided)
-  const PLANS = [
-    {id:1, title:"Plan 350", price:350, daily:55},
-    {id:2, title:"Plan 720", price:720, daily:110},
-    {id:3, title:"Plan 1500", price:1500, daily:220},
-    {id:4, title:"Plan 4000", price:4000, daily:440},
-    {id:5, title:"Plan 9000", price:9000, daily:990},
-    {id:6, title:"Plan 15000", price:15000, daily:1760}
-  ];
-
-  // ----- Persistence -----
-  function saveState(){
-    localStorage.setItem('inv_state', JSON.stringify({
-      balance: state.balance,
-      userId: state.userId,
-      pendingWithdraws: state.pendingWithdraws,
-      deposits: state.deposits
-    }));
+  function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(page).classList.add('active');
   }
-  function loadState(){
-    const raw = localStorage.getItem('inv_state');
-    if(raw){
-      try{
-        const s = JSON.parse(raw);
-        state.balance = s.balance || 0;
-        state.userId = s.userId || null;
-        state.pendingWithdraws = s.pendingWithdraws || [];
-        state.deposits = s.deposits || [];
-      }catch(e){
-        console.error("load state error", e);
-      }
+
+  function deposit() {
+    const pin = document.getElementById('pin').value;
+    if (pin === "7890") {
+      balance += 500; // example deposit amount
+      document.getElementById('balance').innerText = balance;
+      alert("Deposit Successful!");
+    } else {
+      alert("Incorrect PIN!");
     }
-    if(!state.userId){
-      state.userId = "USER" + Math.floor(100000 + Math.random()*900000);
-    }
-    saveState();
   }
 
-  // ----- UI helpers -----
-  function updateBalanceUI(){
-    document.getElementById('balance').innerText = state.balance.toFixed(0);
-  }
-  function show(pageId){
-    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-    document.getElementById(pageId).style.display = 'block';
-  }
-
-  // ----- Render plans -----
-  function renderPlans(){
-    const grid = document.getElementById('plansGrid');
-    grid.innerHTML = '';
-    PLANS.forEach(p=>{
-      const total = p.daily * 30;
-      const card = document.createElement('div');
-      card.className = 'plan-card';
-      card.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div>
-            <div class="plan-title">${p.title}</div>
-            <div class="plan-detail">Duration: 30 Days</div>
-          </div>
-          <div style="text-align:right">
-            <div class="plan-price">Rs ${p.price.toLocaleString()}</div>
-            <div style="color:var(--muted); font-size:13px">Daily: Rs ${p.daily}</div>
-          </div>
-        </div>
-        <div style="margin-top:12px;color:#cfeee0;">
-          <div class="plan-row"><div>Total Profit:</div><div>Rs ${total.toLocaleString()}</div></div>
-          <div class="plan-row"><div>Daily Tasks:</div><div>2 TikTok Videos</div></div>
-        </div>
-        <div style="margin-top:14px;">
-          <button class="plan-buy" onclick="buyPlan(${p.id})">Buy Now</button>
-        </div>
-      `;
-      grid.appendChild(card);
-    });
-  }
-
-  // ----- Deposit -----
-  function handleDeposit(){
-    const method = document.getElementById('depositMethod').value;
-    const name = document.getElementById('depositName').value.trim();
-    const amount = parseFloat(document.getElementById('depositAmount').value);
-    const trx = document.getElementById('depositTrx').value.trim();
-    const pin = document.getElementById('depositPin').value.trim();
-
-    if(!name){ alert("Please enter your name."); return; }
-    if(!amount || amount <= 0){ alert("Please enter a valid amount."); return; }
-    if(!trx){ alert("Please enter Transaction ID."); return; }
-    if(pin !== PIN_CODE){ alert("Incorrect PIN."); return; }
-
-    // record deposit
-    const dep = {
-      id: "D" + Date.now(),
-      method, name, amount, trx, at: Date.now()
-    };
-    state.deposits.push(dep);
-    state.balance = Number(state.balance) + Number(amount);
-    saveState();
-    updateBalanceUI();
-    renderDepositHistory();
-
-    // clear form
-    document.getElementById('depositName').value = '';
-    document.getElementById('depositAmount').value = '';
-    document.getElementById('depositTrx').value = '';
-    document.getElementById('depositPin').value = '';
-
-    alert("Deposit submitted and balance updated.");
-  }
-
-  function renderDepositHistory(){
-    const box = document.getElementById('depositHistory');
-    if(!box) return;
-    if(state.deposits.length === 0){
-      box.innerText = "No deposit records yet.";
+  function withdraw() {
+    const amount = parseInt(document.getElementById('withdrawAmount').value);
+    if (amount > balance) {
+      alert("Insufficient Balance!");
       return;
     }
-    box.innerHTML = '<strong>Recent Deposits:</strong><br/>' + state.deposits.slice(-5).reverse().map(d=>{
-      const dt = new Date(d.at).toLocaleString();
-      return `${d.method.toUpperCase()} • Rs ${d.amount} • ${d.trx} • ${dt}`;
-    }).join('<br/>');
+    balance -= amount;
+    document.getElementById('balance').innerText = balance;
+    document.getElementById('withdrawStatus').innerText = "Withdraw Pending...";
+
+    pendingWithdraw = setTimeout(() => {
+      balance += amount;
+      document.getElementById('balance').innerText = balance;
+      document.getElementById('withdrawStatus').innerText = "Withdraw Cancelled — Amount Returned to Balance.";
+    }, 3600000); // 1 hour
   }
-
-  // ----- Withdraw -----
-  function handleWithdraw(){
-    const method = document.getElementById('withdrawMethod').value;
-    const number = document.getElementById('withdrawNumber').value.trim();
-    const amount = parseFloat(document.getElementById('withdrawAmount').value);
-
-    if(!number){ alert("Enter payout number."); return; }
-    if(!amount || amount <= 0){ alert("Enter valid amount."); return; }
-    if(amount > state.balance){ alert("Insufficient balance."); return; }
-
-    // create pending withdraw
-    const id = "W" + Date.now();
-    const entry = { id, method, number, amount, requestedAt: Date.now(), status: 'pending' };
-    state.pendingWithdraws.push(entry);
-    state.balance = Number(state.balance) - Number(amount);
-    saveState();
-    updateBalanceUI();
-    renderPendingList();
-
-    // set auto-cancel timer
-    setAutoCancel(entry);
-
-    // clear form
-    document.getElementById('withdrawNumber').value = '';
-    document.getElementById('withdrawAmount').value = '';
-    alert("Withdraw request submitted and is now Pending. If not processed within 1 hour it will be returned to your balance automatically.");
-  }
-
-  function setAutoCancel(entry){
-    const now = Date.now();
-    const elapsed = now - entry.requestedAt;
-    const remaining = Math.max(0, MS_ONE_HOUR - elapsed);
-
-    if(remaining <= 0){
-      // already expired - cancel immediately
-      autoCancelWithdraw(entry.id);
-      return;
-    }
-    const tid = setTimeout(()=> autoCancelWithdraw(entry.id), remaining);
-    timers.set(entry.id, tid);
-  }
-
-  function renderPendingList(){
-    const list = document.getElementById('pendingList');
-    list.innerHTML = '';
-    if(state.pendingWithdraws.length === 0){
-      list.innerHTML = '<div style="color:var(--muted)">No pending withdrawals.</div>';
-      return;
-    }
-    state.pendingWithdraws.forEach(p=>{
-      const item = document.createElement('div');
-      item.className = 'pending-item';
-      const left = document.createElement('div');
-      left.innerHTML = `<div style="font-weight:700">Rs ${p.amount}</div><div style="color:var(--muted);font-size:13px">${p.method.toUpperCase()} • ${p.number}</div>`;
-      const right = document.createElement('div');
-      if(p.status === 'pending'){
-        const cancelBtn = document.createElement('button');
-        cancelBtn.className = 'submit danger';
-        cancelBtn.style.background = '#ff6b6b';
-        cancelBtn.style.marginLeft = '8px';
-        cancelBtn.innerText = 'Cancel';
-        cancelBtn.onclick = ()=> cancelWithdraw(p.id);
-        right.appendChild(cancelBtn);
-
-        const badge = document.createElement('span');
-        badge.className = 'badge';
-        badge.innerText = 'Pending';
-        right.appendChild(badge);
-      } else if(p.status === 'cancelled'){
-        const badge = document.createElement('span');
-        badge.className = 'badge';
-        badge.innerText = 'Cancelled';
-        right.appendChild(badge);
-      } else if(p.status === 'processed'){
-        const badge = document.createElement('span');
-        badge.className = 'badge';
-        badge.innerText = 'Processed';
-        right.appendChild(badge);
-      }
-      item.appendChild(left);
-      item.appendChild(right);
-      list.appendChild(item);
-    });
-  }
-
-  function cancelWithdraw(id){
-    const idx = state.pendingWithdraws.findIndex(w => w.id === id);
-    if(idx === -1) return;
-    const w = state.pendingWithdraws[idx];
-    if(w.status !== 'pending') return;
-    // clear timer
-    if(timers.has(id)){
-      clearTimeout(timers.get(id));
-      timers.delete(id);
-    }
-    // return amount
-    state.balance = Number(state.balance) + Number(w.amount);
-    w.status = 'cancelled';
-    saveState();
-    updateBalanceUI();
-    renderPendingList();
-    alert('Withdraw cancelled. Amount returned to balance.');
-  }
-
-  function autoCancelWithdraw(id){
-    const idx = state.pendingWithdraws.findIndex(w => w.id === id);
-    if(idx === -1) return;
-    const w = state.pendingWithdraws[idx];
-    if(w.status !== 'pending') return;
-    w.status = 'cancelled';
-    state.balance = Number(state.balance) + Number(w.amount);
-    saveState();
-    updateBalanceUI();
-    renderPendingList();
-    // cleanup timer
-    if(timers.has(id)){ clearTimeout(timers.get(id)); timers.delete(id); }
-    // optional: notify user (alert)
-    // alert('A pending withdraw was not processed and has been returned to your balance.');
-  }
-
-  // ----- Buy Plan -----
-  function buyPlan(planId){
-    const plan = PLANS.find(p => p.id === planId);
-    if(!plan) return;
-    if(state.balance < plan.price){
-      alert("Insufficient balance to buy this plan. Deposit first.");
-      return;
-    }
-    if(!confirm(`Confirm buy ${plan.title} for Rs ${plan.price}?`)) return;
-    state.balance = Number(state.balance) - Number(plan.price);
-    saveState();
-    updateBalanceUI();
-    alert(`${plan.title} purchased. Congratulations!`);
-  }
-
-  // ----- Referral -----
-  function setupReferral(){
-    const refInput = document.getElementById('refLink');
-    const link = `${location.origin}/ref?id=${state.userId}`;
-    refInput.value = link;
-  }
-  function copyRef(){
-    const refInput = document.getElementById('refLink');
-    refInput.select();
-    refInput.setSelectionRange(0, 99999);
-    document.execCommand('copy');
-    alert('Referral link copied.');
-  }
-
-  // ----- Init -----
-  function init(){
-    loadState();
-    updateBalanceUI();
-    renderPlans();
-    renderDepositHistory();
-    renderPendingList();
-    setupReferral();
-
-    // restore timers for pending withdraws
-    state.pendingWithdraws.forEach(w=>{
-      if(w.status === 'pending'){
-        setAutoCancel(w);
-      }
-    });
-  }
-
-  // support showing pages via hash or default
-  function navigateFromHash(){
-    const h = location.hash.replace('#','');
-    if(['home','deposit','withdraw','referral'].includes(h)) show(h);
-    else show('home');
-  }
-  window.addEventListener('hashchange', navigateFromHash);
-  window.addEventListener('load', ()=>{
-    init();
-    navigateFromHash();
-  });
-
-  // Expose some functions to global for buttons
-  window.show = function(p){ location.hash = p; navigateFromHash(); };
-  window.handleDeposit = handleDeposit;
-  window.handleWithdraw = handleWithdraw;
-  window.buyPlan = buyPlan;
-  window.copyRef = copyRef;
-
 </script>
+
 </body>
 </html>
