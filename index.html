@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Dashboard</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #0a0a0a;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    background-color: #00aa55;
+    padding: 10px;
+    text-align: center;
+    font-size: 20px;
+    position: sticky;
+    top:
+  }
+  nav {
+    display: flex;
+    justify-content: space-around;
+    background-color: #111;
+    padding: 10px 0;
+  }
+  nav button {
+    background-color: #00aa55;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  nav button:hover {
+    background-color: #007a3d;
+  }
+  .page {
+    display: none;
+    padding: 20px;
+  }
+  .active {
+    display: block;
+  }
+  .plan {
+    background-color: #111;
+    border: 2px solid #00aa55;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    text-align: center;
+  }
+  input, select {
+    padding: 8px;
+    width: 90%;
+    margin: 5px 0;
+    border: 1px solid #00aa55;
+    border-radius: 5px;
+    background-color: #222;
+    color: #fff;
+  }
+  button.submit {
+    background-color: #00aa55;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+  }
+  button.submit:hover {
+    background-color: #007a3d;
+  }
+  .balance {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    background: #000;
+    color: #00ff66;
+    border: 2px solid #00ff66;
+    padding: 5px 15px;
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  Investment Dashboard
+  <div class="balance">Balance: Rs <span id="balance">0</span></div>
+</header>
+
+<nav>
+  <button onclick="showPage('home')">Home</button>
+  <button onclick="showPage('deposit')">Deposit</button>
+  <button onclick="showPage('withdraw')">Withdraw</button>
+  <button onclick="showPage('referral')">Referral</button>
+</nav>
+
+<!-- Home Page -->
+<div id="home" class="page active">
+  <h2>Investment Plans</h2>
+  <div class="plan">350 → 55 daily</div>
+  <div class="plan">720 → 110 daily</div>
+  <div class="plan">1500 → 220 daily</div>
+  <div class="plan">4000 → 440 daily</div>
+  <div class="plan">9000 → 990 daily</div>
+  <div class="plan">15000 → 1760 daily</div>
+</div>
+
+<!-- Deposit Page -->
+<div id="deposit" class="page">
+  <h2>Deposit Funds</h2>
+  <p>Choose your payment method:</p>
+  <select id="depositMethod">
+    <option value="jazzcash">JazzCash</option>
+    <option value="easypaisa">EasyPaisa</option>
+  </select>
+  <input type="text" id="name" placeholder="Enter your name">
+  <input type="text" id="trx" placeholder="Transaction ID">
+  <input type="password" id="pin" placeholder="Enter PIN (7890)">
+  <button class="submit" onclick="deposit()">Submit</button>
+</div>
+
+<!-- Withdraw Page -->
+<div id="withdraw" class="page">
+  <h2>Withdraw Funds</h2>
+  <select id="withdrawMethod">
+    <option value="jazzcash">JazzCash</option>
+    <option value="easypaisa">EasyPaisa</option>
+  </select>
+  <input type="text" id="withdrawNumber" placeholder="Enter your number">
+  <input type="number" id="withdrawAmount" placeholder="Enter amount">
+  <button class="submit" onclick="withdraw()">Submit</button>
+  <p id="withdrawStatus"></p>
+</div>
+
+<!-- Referral Page -->
+<div id="referral" class="page">
+  <h2>Referral Program</h2>
+  <p>Level 1 Commission: 10%</p>
+  <p>Level 2 Commission: 4%</p>
+  <p>Level 3 Commission: 1%</p>
+  <p>Your Referral Link:</p>
+  <input type="text" readonly value="https://yourwebsite.com/ref?id=USER123" style="width:100%">
+</div>
+
+<script>
+  let balance = 0;
+  let pendingWithdraw = null;
+
+  function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(page).classList.add('active');
+  }
+
+  function deposit() {
+    const pin = document.getElementById('pin').value;
+    if (pin === "7890") {
+      balance += 500; // example deposit
+      document.getElementById('balance').innerText = balance;
+      alert("Deposit Successful!");
+    } else {
+      alert("Incorrect PIN!");
+    }
+  }
+
+  function withdraw() {
+    const amount = parseInt(document.getElementById('withdrawAmount').value);
+    if (amount > balance) {
+      alert("Insufficient Balance!");
+      return;
+    }
+    balance -= amount;
+    document.getElementById('balance').innerText = balance;
+    document.getElementById('withdrawStatus').innerText = "Withdraw Pending...";
+
+    pendingWithdraw = setTimeout(() => {
+      balance += amount;
+      document.getElementById('balance').innerText = balance;
+      document.getElementById('withdrawStatus').innerText = "Withdraw Cancelled — Amount Returned to Balance.";
+    }, 3600000); // 1 hour = 3600000 ms
+  }
+</script>
+
+</body>
+</html>
