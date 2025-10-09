@@ -52,7 +52,7 @@
   <!-- HOME -->
   <section id="home" class="page">
     <h2 style="color:var(--accent)">VIP Plans (30 days)</h2>
-    <p class="muted">Large VIP cards. Click Buy Now to prefill deposit and activate plan.</p>
+    <p class="muted">Large VIP cards. Click Buy Now to prefill deposit and activate plan after admin approval.</p>
     <div id="plans" class="plans"></div>
 
     <div class="card" style="margin-top:18px">
@@ -61,7 +61,7 @@
     </div>
   </section>
 
-  <!-- DEPOSIT -->
+  <!-- DEPOSIT (PIN removed) -->
   <section id="deposit" class="page" style="display:none">
     <h2 style="color:var(--accent)">Deposit</h2>
     <div class="card">
@@ -89,9 +89,6 @@
 
       <label>Transaction ID</label>
       <input id="d_trx" type="text" placeholder="Transaction ID">
-
-      <label>PIN (7890)</label>
-      <input id="d_pin" type="password" placeholder="PIN">
 
       <div style="display:flex;gap:10px;justify-content:flex-end">
         <button class="submit" onclick="submitDeposit()">Submit Deposit Request</button>
@@ -130,7 +127,7 @@
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
         <button class="submit" onclick="copyRef()">Copy Link</button>
       </div>
-      <div class="muted" style="margin-top:12px">Commissions are paid automatically when daily profits are distributed for active plans.</div>
+      <div class="muted" style="margin-top:12px">Commissions are added automatically when daily profits are distributed for active plans.</div>
     </div>
   </section>
 
@@ -145,12 +142,12 @@ const KEY_DEPOSITS = 'inv_deposits_v3';
 const KEY_WITHDRAWS = 'inv_withdraws_v3';
 const KEY_BALANCES = 'inv_balances_v3';
 const KEY_USERID = 'inv_userid_v3';
-const KEY_PLANS_ACTIVE = 'inv_active_plans_v3'; // active plans per user (list)
-const PIN = '7890';
+const KEY_PLANS_ACTIVE = 'inv_active_plans_v3';
+const PIN = '7890'; // kept constant for reference but NOT used in deposit form
 const ONE_HOUR = 3600000;
 const ONE_DAY = 24*3600*1000;
 
-/* Plans */
+/* Plans (Plan names/prices/daily) */
 const PLANS = [
  {id:1,name:'Plan 1',price:350,daily:55},
  {id:2,name:'Plan 2',price:720,daily:110},
@@ -167,12 +164,10 @@ function storageSet(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
 /* user id & referral handling */
 let userId = storageGet(KEY_USERID,null);
 if(!userId){
-  // if URL has ?ref=UID then save referrer mapping for this user
   const urlParams = new URLSearchParams(location.search);
   const ref = urlParams.get('ref');
   userId = 'U'+Math.floor(100000+Math.random()*900000);
   storageSet(KEY_USERID,userId);
-  // store referrer if provided
   if(ref){
     const map = storageGet('inv_refmap_v3', {});
     map[userId] = ref;
@@ -235,29 +230,24 @@ function renderActivePlans(){
   }).join('<br>');
 }
 
-/* BUY NOW: create an "active plan entry" and prefill deposit */
+/* BUY NOW: prefill deposit amount & mark planId on trx field dataset */
 function buyNow(planId){
   const plan = PLANS.find(p=>p.id===planId);
   if(!plan) return;
-  // prefill deposit form with plan price and name
   document.getElementById('d_amount').value = plan.price;
   document.getElementById('d_name').value = userId + ' - ' + plan.name;
   show('deposit');
-  // set hidden temp value so when admin approves deposit we can auto-activate plan
   document.getElementById('d_trx').dataset.prefillPlan = planId;
   setTimeout(()=>document.getElementById('d_trx').focus(),200);
 }
 
-/* Deposit: create deposit request (admin approves to add to balance).
-   We also carry planId in the deposit object (if prefilled) so admin can approve & auto-activate plan. */
+/* Deposit: create deposit request (admin approves to add to balance and optionally activate plan) */
 function submitDeposit(){
   const method = document.getElementById('d_method').value;
   const name = document.getElementById('d_name').value.trim();
   const amount = Number(document.getElementById('d_amount').value);
   const trx = document.getElementById('d_trx').value.trim();
-  const pin = document.getElementById('d_pin').value.trim();
   if(!name || !amount || !trx){ alert('Please complete all fields'); return; }
-  if(pin !== PIN){ alert('Incorrect PIN'); return; }
 
   const deposits = storageGet(KEY_DEPOSITS, []);
   const planId = document.getElementById('d_trx').dataset.prefillPlan ? Number(document.getElementById('d_trx').dataset.prefillPlan) : null;
@@ -265,16 +255,15 @@ function submitDeposit(){
   deposits.push(obj);
   storageSet(KEY_DEPOSITS, deposits);
 
-  // clear fields (keep name if you like)
+  // clear trx & prefill marker
   document.getElementById('d_trx').value = '';
-  document.getElementById('d_pin').value = '';
   delete document.getElementById('d_trx').dataset.prefillPlan;
 
-  alert('Deposit request submitted. Admin must approve to add balance and (if plan) to activate plan.');
+  alert('Deposit request submitted. Admin will approve to add balance and (if plan) activate plan.');
   renderDepositHistory();
 }
 
-/* show deposit history for current user */
+/* show deposit history for this user */
 function renderDepositHistory(){
   const deposits = storageGet(KEY_DEPOSITS, []);
   const mine = deposits.filter(d=>d.userId===userId).slice(-6).reverse();
@@ -336,7 +325,11 @@ function autoCancelExpiredWithdraws(){
   if(changed){ storageSet(KEY_WITHDRAWS, withdraws); storageSet(KEY_BALANCES, balances); updateBalanceUI(); renderPendingWithdraws(); }
 }
 
-/* Referral: setup link & distribution when profit pays */
+/* Referral and payouts:
+   - Active plans stored at KEY_PLANS_ACTIVE with fields {id, userId, planId, daily, nextRun, status}
+   - runPayouts() pays daily to user when nextRun <= now, then nextRun += 24h
+   - distributes referral commissions up to 3 levels using inv_refmap_v3
+*/
 function setupReferralLink(){
   const linkEl = document.getElementById('ref_link');
   const link = location.origin + location.pathname + '?ref=' + userId;
@@ -347,50 +340,8 @@ function copyRef(){ const el=document.getElementById('ref_link'); el.select(); d
 /* copy numbers */
 function copyText(txt){ navigator.clipboard?.writeText(txt).then(()=>alert('Copied: '+txt), ()=>{ alert('Copy failed — select and copy manually'); }); }
 
-/* -------------------------
-   Admin actions accessible
-   via localStorage (admin panel)
-   ------------------------- */
-
-/* Admin will approve deposit: on approve deposit we add amount to user's balance.
-   If deposit contained a planId, activating the plan will create an active-plan record for that user.
-*/
-function admin_approveDepositLocal(depositId){
-  const deposits = storageGet(KEY_DEPOSITS, []);
-  const idx = deposits.findIndex(d=>d.id===depositId);
-  if(idx===-1) return;
-  const d = deposits[idx];
-  if(d.status !== 'pending'){ return; }
-  // add to user balance
-  const balances = storageGet(KEY_BALANCES, {});
-  balances[d.userId] = (balances[d.userId]||0) + Number(d.amount);
-  storageSet(KEY_BALANCES, balances);
-
-  // mark deposit approved
-  d.status = 'approved';
-  d.processedAt = Date.now();
-  deposits[idx] = d;
-  storageSet(KEY_DEPOSITS, deposits);
-
-  // if this deposit had planId -> activate the plan for user (create active plan entry)
-  if(d.planId){
-    activatePlanForUser(d.userId, d.planId);
-  }
-}
-
-/* Activate plan: create entry in KEY_PLANS_ACTIVE with nextRun = now + 24h */
-function activatePlanForUser(uid, planId){
-  const plan = PLANS.find(p=>p.id===planId);
-  if(!plan) return;
-  const active = storageGet(KEY_PLANS_ACTIVE, []);
-  // allow multiple same-plan purchases; create unique id
-  const rec = { id:'A'+Date.now(), userId: uid, planId: planId, daily: plan.daily, activatedAt: Date.now(), nextRun: Date.now() + ONE_DAY, status:'active' };
-  active.push(rec);
-  storageSet(KEY_PLANS_ACTIVE, active);
-}
-
-/* Run payout check: find active plans whose nextRun <= now -> pay daily profit to user and schedule nextRun += 24h.
-   Also distribute referral commissions up-to-3-levels.
+/* Activation helper used by admin: when deposit approved with planId, admin sets active record.
+   runPayouts will use PLANS to set daily amount if active record's daily === 0.
 */
 function runPayouts(){
   const active = storageGet(KEY_PLANS_ACTIVE, []);
@@ -400,22 +351,23 @@ function runPayouts(){
   let changed=false;
   active.forEach(a=>{
     if(a.status==='active' && Date.now() >= a.nextRun){
-      // pay daily profit to user
+      // ensure daily is set (derive from PLANS if missing)
+      if(!a.daily || a.daily === 0){
+        const p = PLANS.find(x=>x.id === a.planId);
+        a.daily = p ? p.daily : 0;
+      }
       balances[a.userId] = (balances[a.userId]||0) + Number(a.daily);
-      // distribute referral commissions
-      // Level1 10%, L2 4%, L3 1% of daily profit
+
+      // distribute referral commissions L1 10%, L2 4%, L3 1%
       const lvlPercent = [0.10, 0.04, 0.01];
       let parent = refmap[a.userId];
       for(let level=0; level<3 && parent; level++){
         if(!balances[parent]) balances[parent] = 0;
         const commission = Math.round(Number(a.daily) * lvlPercent[level]);
-        if(commission>0){
-          balances[parent] = balances[parent] + commission;
-        }
-        // go up chain
+        if(commission>0) balances[parent] = balances[parent] + commission;
         parent = refmap[parent];
       }
-      // schedule next run
+
       a.nextRun = a.nextRun + ONE_DAY;
       changed = true;
     }
@@ -423,17 +375,12 @@ function runPayouts(){
   if(changed){ storageSet(KEY_BALANCES, balances); storageSet(KEY_PLANS_ACTIVE, active); updateBalanceUI(); renderActivePlans(); }
 }
 
-/* Periodic runner */
-setInterval(()=>{ runPayouts(); autoCancelExpiredWithdraws(); }, 30*1000);
+/* Expose admin helper for manual trigger via admin panel button */
+window.__admin_trigger = { runPayouts };
 
-/* Helpers for admin panel (exposed through localStorage actions) */
-window.__admin = {
-  approveDeposit: admin_approveDepositLocal,
-  activatePlanForUser: activatePlanForUser,
-  runPayouts: runPayouts
-};
-
-/* initial render */
+/* -------------------------
+   Init
+   ------------------------- */
 function init(){
   renderPlans();
   updateBalanceUI();
@@ -441,13 +388,14 @@ function init(){
   renderPendingWithdraws();
   renderActivePlans();
   setupReferralLink();
-  // on load run payout logic once to pick up any due items
   runPayouts();
   autoCancelExpiredWithdraws();
+  // periodic checks
+  setInterval(()=>{ runPayouts(); autoCancelExpiredWithdraws(); updateBalanceUI(); renderActivePlans(); renderPendingWithdraws(); }, 30000);
 }
 window.addEventListener('load', init);
 
-/* Expose navigation functions to buttons */
+/* Exports for buttons */
 window.show = show;
 window.buyNow = buyNow;
 window.submitDeposit = submitDeposit;
