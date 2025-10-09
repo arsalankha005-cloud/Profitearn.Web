@@ -1,588 +1,294 @@
 <!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Dashboard — VIP Plans</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Investment Dashboard - User</title>
 <style>
-  :root{
-    --bg:#071923;
-    --card:#0f2630;
-    --accent:#13b66d;
-    --accent-strong:#0e8f4d;
-    --muted:#9fb3ad;
-    --glass: rgba(255,255,255,0.03);
-    --card-shadow: 0 18px 40px rgba(3,12,15,0.7);
-  }
+  :root{--bg:#071923;--card:#0f2630;--accent:#13b66d;--muted:#9fb3ad}
   *{box-sizing:border-box}
-  body{
-    margin:0;
-    font-family: "Segoe UI", Roboto, "Noto Nastaliq Urdu", Arial, sans-serif;
-    background: linear-gradient(180deg,#071923 0%, #041319 100%);
-    color:#eaf7ef;
-    -webkit-font-smoothing:antialiased;
-  }
-
-  header{
-    position:sticky; top:0; z-index:40;
-    background:transparent;
-    padding:18px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-    backdrop-filter: blur(4px);
-  }
-  header h1{margin:0; font-size:22px; color:var(--accent); font-weight:800; text-align:center; width:100%;}
-  .balance-btn{
-    background:#00140b;
-    color: #9ff6b8;
-    border:2px solid #0ff77f;
-    padding:8px 14px;
-    border-radius:12px;
-    font-weight:700;
-    position:absolute;
-    left:18px;
-    top:14px;
-  }
-
-  nav{
-    display:flex;
-    gap:12px;
-    padding:14px 18px;
-    justify-content:center;
-    flex-wrap:wrap;
-  }
-  nav button{
-    border:none;
-    padding:10px 18px;
-    border-radius:10px;
-    background:var(--accent);
-    color:#00210a;
-    font-weight:800;
-    cursor:pointer;
-    box-shadow:0 8px 20px rgba(0,0,0,0.6);
-  }
-  nav button.secondary{background:#15c2ff; color:#002;}
-
-  main{padding:18px; max-width:980px; margin:0 auto 60px;}
-
-  /* TOP heading */
-  .top-title{ text-align:center; margin-top:6px; }
-  .top-title h2{ color:var(--accent); margin:0; font-size:28px; }
-  .top-title p{ color:var(--muted); margin:6px 0 0 0; }
-
-  /* Plans style - big VIP boxes like image */
-  .plans-wrap{ margin-top:20px; display:flex; flex-direction:column; gap:22px; }
-  .plan-card{
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.14));
-    border-radius:18px;
-    padding:22px;
-    box-shadow: var(--card-shadow);
-    border:1px solid rgba(0,0,0,0.45);
-    overflow:hidden;
-    display:flex;
-    gap:18px;
-    align-items:flex-start;
-  }
-  .plan-left{ flex:0 0 160px; display:flex; flex-direction:column; gap:6px; align-items:center; }
-  .vip-badge{ background:transparent; color:var(--accent); font-weight:900; font-size:20px; }
-  .price-box{ background:rgba(0,0,0,0.25); border-radius:12px; padding:10px 12px; text-align:center; border:1px solid rgba(0,0,0,0.5); }
-  .price-box .price{ font-weight:900; font-size:18px; color:#fff; }
-  .price-box .daily{ font-size:13px; color:var(--muted); margin-top:6px; }
-
-  .plan-body{ flex:1; padding-right:10px; }
-  .plan-title{ color:var(--accent); font-weight:900; font-size:22px; margin:0 0 8px 0; }
-  .plan-detail{ color:#cfeee0; margin:8px 0; font-size:15px; line-height:1.6; }
-  .detail-row{ display:flex; justify-content:space-between; gap:12px; align-items:center; margin:8px 0; }
-  .detail-label{ color:var(--muted); }
-  .buy-btn{ margin-top:12px; background:var(--accent); color:#00210a; padding:10px 16px; border-radius:12px; border:none; font-weight:900; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.45); }
-
-  /* Deposit / Withdraw / Referral cards */
-  .card{background:var(--card); border-radius:12px; padding:18px; box-shadow:0 8px 24px rgba(0,0,0,0.55); border:1px solid rgba(0,0,0,0.45); margin-top:12px;}
-  label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px; text-align:right;}
-  input[type="text"], input[type="number"], input[type="password"], select{
-    width:100%;
-    padding:10px 12px;
-    border-radius:8px;
-    border:1px solid rgba(0,0,0,0.5);
-    background:#071a16;
-    color:#eaf8ee;
-    outline:none;
-    margin-bottom:10px;
-    text-align:right;
-  }
-  .submit{background:var(--accent); border:none; color:#022; padding:10px 14px; font-weight:800; border-radius:10px; cursor:pointer;}
-  .submit.danger{background:#ff5c5c; color:#fff}
-  .payboxes{display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap; justify-content:space-between;}
-  .paybox{flex:1 1 48%; background:var(--glass); padding:14px; border-radius:10px; border:1px solid rgba(0,0,0,0.4); text-align:center;}
-  .paybox strong{display:block; color:var(--accent); font-size:16px; margin-bottom:6px;}
-  .paybox small{display:block; color:var(--muted); font-size:13px;}
-
-  .pending-list{margin-top:12px; display:flex; flex-direction:column; gap:8px;}
-  .pending-item{background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;}
-  .badge{background:#091; color:#023; padding:6px 10px; border-radius:8px; font-weight:800; color:var(--accent);}
-
-  .ref-box{display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap; justify-content:space-between;}
-  .ref-input{flex:1 1 300px; padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.4); background:#071a16; color:#eafff0; text-align:left;}
-  .copy-btn{background:#15c2ff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:800; color:#022}
-
-  footer{padding:30px 0 60px; text-align:center; color:var(--muted)}
-  @media (max-width:900px){
-    .plan-card{flex-direction:column; align-items:stretch;}
-    .plan-left{flex:0 0 auto; flex-direction:row; justify-content:space-between;}
-    .ref-input{width:100%;}
-  }
-
-  /* small helpers */
+  body{margin:0;font-family:Inter,Arial;background:linear-gradient(180deg,#071923,#041319);color:#eaf7ef}
+  header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+  h1{margin:0;color:var(--accent)}
+  .balance{background:#00140b;color:#9ff6b8;border:2px solid #0ff77f;padding:8px 12px;border-radius:10px;font-weight:700}
+  nav{display:flex;gap:10px;justify-content:center;padding:12px;background:transparent}
+  nav button{background:var(--accent);border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:700}
+  main{max-width:980px;margin:18px auto;padding:0 12px}
+  .plans{display:flex;flex-direction:column;gap:18px}
+  .plan{background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0.12));border:1px solid rgba(0,0,0,0.45);border-radius:14px;padding:20px;display:flex;gap:18px;box-shadow:0 18px 40px rgba(3,12,15,0.7)}
+  .plan-left{width:150px;text-align:center}
+  .price{font-weight:900;font-size:20px;color:#fff}
+  .daily{color:var(--muted);margin-top:6px}
+  .plan-body{flex:1}
+  .plan-title{color:var(--accent);font-weight:900;font-size:20px;margin:0 0 6px}
+  .plan-row{display:flex;justify-content:space-between;color:#cfeee0;margin:6px 0}
+  .buy{background:var(--accent);border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:900;color:#022}
+  .card{background:var(--card);padding:16px;border-radius:12px;border:1px solid rgba(0,0,0,0.45)}
+  label{display:block;color:var(--muted);margin:8px 0 6px;text-align:left}
+  input,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.45);background:#071a16;color:#eaf8ee}
+  .submit{background:var(--accent);border:none;padding:10px 14px;border-radius:8px;cursor:pointer;color:#022;font-weight:800;margin-top:8px}
   .muted{color:var(--muted)}
-  .center{text-align:center}
+  .pending-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .pending-item{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;display:flex;justify-content:space-between;align-items:center}
+  footer{text-align:center;color:var(--muted);margin:30px 0}
+  @media(max-width:800px){.plan{flex-direction:column}.plan-left{width:100%}}
 </style>
 </head>
 <body>
-
 <header>
-  <button class="balance-btn" id="balanceBtn">Balance: Rs <span id="balance">0</span></button>
-  <h1>Dashboard</h1>
+  <h1>Investment Dashboard</h1>
+  <div class="balance">Balance: Rs <span id="balance">0</span></div>
 </header>
 
-<nav style="direction:ltr;">
-  <button onclick="showPage('home')">Home</button>
-  <button onclick="showPage('deposit')">Deposit</button>
-  <button onclick="showPage('withdraw')">Withdraw</button>
-  <button onclick="showPage('referral')">Referral</button>
+<nav>
+  <button onclick="show('home')">Home</button>
+  <button onclick="show('deposit')">Deposit</button>
+  <button onclick="show('withdraw')">Withdraw</button>
+  <button onclick="show('referral')">Referral</button>
 </nav>
 
 <main>
-
-  <div class="top-title center">
-    <h2>All Available VIP Plans (30 Days)</h2>
-    <p class="muted">بڑے VIP-style پلان باکسز — ہر پلان کے نیچے Buy Now</p>
-  </div>
-
-  <!-- HOME / PLANS -->
-  <section id="home" class="page" style="display:block; margin-top:18px;">
-    <div class="plans-wrap" id="plansWrap">
-      <!-- JS will inject plan cards here -->
-    </div>
+  <!-- HOME -->
+  <section id="home" class="page">
+    <h2 style="color:var(--accent)">VIP Plans (30 days)</h2>
+    <p class="muted">Large professional plan cards — click Buy Now to prefill deposit.</p>
+    <div class="plans" id="plans"></div>
   </section>
 
   <!-- DEPOSIT -->
-  <section id="deposit" class="page" style="display:none;">
-    <h3 class="center" style="color:var(--accent)">Deposit Funds</h3>
+  <section id="deposit" class="page" style="display:none">
+    <h2 style="color:var(--accent)">Deposit</h2>
     <div class="card">
-      <div class="payboxes" style="direction:rtl">
-        <div class="paybox">
-          <strong>JazzCash</strong>
-          <small>03218684114</small>
-          <small class="muted">رقم بھیجیں اور Transaction ID فارم میں درج کریں</small>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <strong>JazzCash</strong><div class="muted">03218684114</div>
         </div>
-        <div class="paybox">
-          <strong>EasyPaisa</strong>
-          <small>03706502150</small>
-          <small class="muted">رقم بھیجیں اور Transaction ID فارم میں درج کریں</small>
+        <div style="flex:1;min-width:200px">
+          <strong>EasyPaisa</strong><div class="muted">03706502150</div>
         </div>
       </div>
 
-      <label>منتخب کریں (Payment Method)</label>
-      <select id="depositMethod" style="direction:rtl">
+      <label>Payment Method</label>
+      <select id="d_method">
         <option value="jazzcash">JazzCash</option>
         <option value="easypaisa">EasyPaisa</option>
       </select>
 
-      <label>آپ کا نام</label>
-      <input type="text" id="depositName" placeholder="اپنا نام درج کریں">
+      <label>Your Name</label>
+      <input id="d_name" type="text" placeholder="Full name">
 
-      <label>Amount (Rs)</label>
-      <input type="number" id="depositAmount" placeholder="مثلاً 1500">
+      <label>Amount (PKR)</label>
+      <input id="d_amount" type="number" placeholder="e.g. 1500">
 
       <label>Transaction ID</label>
-      <input type="text" id="depositTrx" placeholder="Payment Transaction ID">
+      <input id="d_trx" type="text" placeholder="Transaction ID from payment">
 
-      <label>PIN (Use: 7890)</label>
-      <input type="password" id="depositPin" placeholder="PIN درج کریں">
+      <label>PIN (use 7890)</label>
+      <input id="d_pin" type="password" placeholder="PIN">
 
-      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
-        <button class="submit" onclick="submitDeposit()">Submit Deposit</button>
-      </div>
+      <button class="submit" onclick="submitDeposit()">Submit Deposit Request</button>
 
-      <div id="depositHistory" style="margin-top:14px; color:var(--muted); font-size:13px"></div>
+      <div id="deposit_history" class="muted" style="margin-top:12px"></div>
     </div>
   </section>
 
   <!-- WITHDRAW -->
-  <section id="withdraw" class="page" style="display:none;">
-    <h3 class="center" style="color:var(--accent)">Withdraw Funds</h3>
+  <section id="withdraw" class="page" style="display:none">
+    <h2 style="color:var(--accent)">Withdraw</h2>
     <div class="card">
       <label>Method</label>
-      <select id="withdrawMethod" style="direction:rtl">
-        <option value="jazzcash">JazzCash</option>
-        <option value="easypaisa">EasyPaisa</option>
-      </select>
-
+      <select id="w_method"><option value="jazzcash">JazzCash</option><option value="easypaisa">EasyPaisa</option></select>
       <label>Number</label>
-      <input type="text" id="withdrawNumber" placeholder="JazzCash / EasyPaisa number">
+      <input id="w_number" type="text" placeholder="Payout number">
+      <label>Amount (PKR)</label>
+      <input id="w_amount" type="number" placeholder="Amount to withdraw">
+      <button class="submit" onclick="submitWithdraw()">Submit Withdraw Request</button>
 
-      <label>Amount (Rs)</label>
-      <input type="number" id="withdrawAmount" placeholder="Amount to withdraw">
-
-      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
-        <button class="submit" onclick="submitWithdraw()">Submit Withdraw</button>
-      </div>
-
-      <div style="margin-top:16px;">
-        <h4 class="muted">Pending Withdrawals</h4>
-        <div class="pending-list" id="pendingList"></div>
-      </div>
+      <h4 class="muted" style="margin-top:12px">Pending Withdraws</h4>
+      <div id="pending_withdraws" class="pending-list"></div>
     </div>
   </section>
 
   <!-- REFERRAL -->
-  <section id="referral" class="page" style="display:none;">
-    <h3 class="center" style="color:var(--accent)">Referral Program</h3>
+  <section id="referral" class="page" style="display:none">
+    <h2 style="color:var(--accent)">Referral</h2>
     <div class="card">
-      <p class="muted"><strong>Level 1:</strong> 10% &nbsp;&nbsp; <strong>Level 2:</strong> 4% &nbsp;&nbsp; <strong>Level 3:</strong> 1%</p>
-
-      <div class="ref-box" style="direction:ltr">
-        <input id="refLink" class="ref-input" readonly />
-        <button class="copy-btn" onclick="copyReferral()">Copy Link</button>
-      </div>
-
-      <div style="margin-top:12px; color:var(--muted)">
-        <p>ہر یوزر کو ایک منفرد ریفرل لنک ملے گا۔ جتنے زیادہ لوگ آپ کے لنک سے آئیں گے آپ کو اتنا کمیشن ملے گا۔</p>
-      </div>
+      <p class="muted"><strong>Level 1:</strong> 10% &nbsp; <strong>Level 2:</strong> 4% &nbsp; <strong>Level 3:</strong> 1%</p>
+      <label>Your referral link (copy)</label>
+      <input id="ref_link" readonly />
+      <button class="submit" onclick="copyRef()">Copy Link</button>
+      <div class="muted" style="margin-top:8px">Referral commissions shown in admin when paid — demo uses localStorage.</div>
     </div>
   </section>
 
-  <footer style="margin-top:20px; text-align:center; color:var(--muted)">
-    © Investment Dashboard — Green & Dark Theme — Demo
-  </footer>
-
+  <footer>© Demo — Keep both files in same folder for admin/user sync</footer>
 </main>
 
 <script>
-/* ===========================
-   APPLICATION STATE & UTILS
-   =========================== */
-const PIN = "7890";
-const ONE_HOUR_MS = 3600000;
-
-let state = {
-  balance: 0,
-  deposits: [],       // {id, method, name, amount, trx, at}
-  pendingWithdraws: [], // {id, method, number, amount, requestedAt, status}
-  userId: null
-};
+/* STORAGE KEYS & UTIL */
+const KEY_DEPOSITS = 'inv_deposits_v2';     // list of deposit request objects
+const KEY_WITHDRAWS = 'inv_withdraws_v2';   // list of withdraw request objects
+const KEY_BALANCES = 'inv_balances_v2';     // map userId => balance
+const KEY_USERID = 'inv_userid_v2';
 
 const PLANS = [
-  { id:1, title:"VIP 1", price:350, daily:55 },
-  { id:2, title:"VIP 2", price:720, daily:110 },
-  { id:3, title:"VIP 3", price:1500, daily:220 },
-  { id:4, title:"VIP 4", price:4000, daily:440 },
-  { id:5, title:"VIP 5", price:9000, daily:990 },
-  { id:6, title:"VIP 6", price:15000, daily:1760 }
+  {id:1,name:'VIP 1',price:350,daily:55},
+  {id:2,name:'VIP 2',price:720,daily:110},
+  {id:3,name:'VIP 3',price:1500,daily:220},
+  {id:4,name:'VIP 4',price:4000,daily:440},
+  {id:5,name:'VIP 5',price:9000,daily:990},
+  {id:6,name:'VIP 6',price:15000,daily:1760}
 ];
 
-const timers = new Map(); // withdrawId -> timeoutId
+function storageGet(k,def){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch(e){return def;} }
+function storageSet(k,obj){ localStorage.setItem(k,JSON.stringify(obj)); }
 
-function saveState(){
-  localStorage.setItem('inv_state_v1', JSON.stringify({
-    balance: state.balance,
-    deposits: state.deposits,
-    pendingWithdraws: state.pendingWithdraws,
-    userId: state.userId
-  }));
-}
-function loadState(){
-  const raw = localStorage.getItem('inv_state_v1');
-  if(raw){
-    try{
-      const s = JSON.parse(raw);
-      state.balance = s.balance || 0;
-      state.deposits = s.deposits || [];
-      state.pendingWithdraws = s.pendingWithdraws || [];
-      state.userId = s.userId || null;
-    }catch(e){
-      console.error("load error", e);
-    }
-  }
-  if(!state.userId){
-    state.userId = 'USER' + Math.floor(100000 + Math.random()*900000);
-  }
-  saveState();
-}
+/* USER IDENTIFIER & BALANCE */
+let userId = storageGet(KEY_USERID,null);
+if(!userId){ userId = 'U'+Math.floor(100000+Math.random()*900000); storageSet(KEY_USERID,userId); }
+let balances = storageGet(KEY_BALANCES,{});
+if(!(userId in balances)) balances[userId]=0;
+storageSet(KEY_BALANCES,balances);
 
-/* ================
-   UI Render Helpers
-   ================ */
-function updateBalanceUI(){
-  document.getElementById('balance').innerText = Number(state.balance).toFixed(0);
+/* UI helpers */
+function show(page){
+  document.querySelectorAll('.page').forEach(s=>s.style.display='none');
+  document.getElementById(page).style.display='block';
 }
+function updateBalanceUI(){ balances = storageGet(KEY_BALANCES,{}); const b = balances[userId]||0; document.getElementById('balance').innerText = Number(b).toFixed(0); }
 
-function showPage(id){
-  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-  document.getElementById(id).style.display = 'block';
-  if(id === 'deposit') {
-    // scroll to top of deposit for visibility
-    window.scrollTo({top:0, behavior:'smooth'});
-  }
-}
-
-/* ================
-   Render Plans
-   ================ */
+/* RENDER PLANS */
 function renderPlans(){
-  const wrap = document.getElementById('plansWrap');
+  const wrap = document.getElementById('plans');
   wrap.innerHTML = '';
-  PLANS.forEach((p, idx) => {
-    const total = p.daily * 30;
-    const card = document.createElement('div');
-    card.className = 'plan-card';
-    card.innerHTML = `
-      <div class="plan-left">
-        <div class="vip-badge">${p.title}</div>
-        <div class="price-box">
+  PLANS.forEach(p=>{
+    const total = p.daily*30;
+    const div = document.createElement('div');
+    div.className='plan';
+    div.innerHTML = `
+      <div style="display:flex;gap:18px;align-items:center">
+        <div class="plan-left">
           <div class="price">Rs ${p.price.toLocaleString()}</div>
           <div class="daily">Daily: Rs ${p.daily}</div>
         </div>
-      </div>
-      <div class="plan-body">
-        <div class="plan-title">${p.title}</div>
-        <div class="plan-detail">
-          <div class="detail-row"><div class="detail-label">Price:</div><div>Rs ${p.price.toLocaleString()}</div></div>
-          <div class="detail-row"><div class="detail-label">Daily Profit:</div><div>Rs ${p.daily}</div></div>
-          <div class="detail-row"><div class="detail-label">Total Profit:</div><div>Rs ${total.toLocaleString()}</div></div>
-          <div class="detail-row"><div class="detail-label">Duration:</div><div>30 Days</div></div>
-          <div class="detail-row"><div class="detail-label">Daily Tasks:</div><div>2 TikTok Videos</div></div>
-        </div>
-        <div style="text-align:left;">
-          <button class="buy-btn" data-plan="${p.id}" onclick="buyNow(${p.id})">Buy Now</button>
+        <div class="plan-body">
+          <div class="plan-title">${p.name}</div>
+          <div class="plan-row"><div>Price</div><div>Rs ${p.price.toLocaleString()}</div></div>
+          <div class="plan-row"><div>Daily Profit</div><div>Rs ${p.daily}</div></div>
+          <div class="plan-row"><div>Total Profit</div><div>Rs ${total.toLocaleString()}</div></div>
+          <div class="plan-row"><div>Duration</div><div>30 Days</div></div>
+          <div style="margin-top:10px;text-align:left"><button class="buy" onclick="buyNow(${p.id})">Buy Now</button></div>
         </div>
       </div>
     `;
-    wrap.appendChild(card);
+    wrap.appendChild(div);
   });
 }
 
-/* ================
-   Buy Now -> Prefill Deposit
-   ================ */
+/* BUY NOW -> prefill deposit form and go to Deposit section */
 function buyNow(planId){
-  const plan = PLANS.find(pl => pl.id === planId);
+  const plan = PLANS.find(p=>p.id===planId);
   if(!plan) return;
-  // prefill deposit amount with plan price and set a small note in name field
-  document.getElementById('depositAmount').value = plan.price;
-  document.getElementById('depositName').value = state.userId + ' - ' + plan.title;
-  showPage('deposit');
-  // focus trx field
-  setTimeout(()=> document.getElementById('depositTrx').focus(), 250);
+  document.getElementById('d_amount').value = plan.price;
+  document.getElementById('d_name').value = userId + ' - ' + plan.name;
+  show('deposit');
+  setTimeout(()=>document.getElementById('d_trx').focus(),200);
 }
 
-/* ================
-   Deposit
-   ================ */
-function renderDepositHistory(){
-  const el = document.getElementById('depositHistory');
-  if(!el) return;
-  if(state.deposits.length === 0){
-    el.innerHTML = '<div class="muted">کوئی ڈپازٹ ریکارڈ نہیں۔</div>';
-    return;
-  }
-  el.innerHTML = '<strong>Recent Deposits:</strong><br/>' + state.deposits.slice(-6).reverse().map(d=>{
-    const t = new Date(d.at).toLocaleString();
-    return `${d.method.toUpperCase()} • Rs ${d.amount} • ${d.trx} • ${t}`;
-  }).join('<br/>');
-}
-
+/* DEPOSIT: create deposit request (does NOT auto-add balance) */
 function submitDeposit(){
-  const method = document.getElementById('depositMethod').value;
-  const name = document.getElementById('depositName').value.trim();
-  const amount = Number(document.getElementById('depositAmount').value);
-  const trx = document.getElementById('depositTrx').value.trim();
-  const pin = document.getElementById('depositPin').value.trim();
+  const method = document.getElementById('d_method').value;
+  const name = document.getElementById('d_name').value.trim();
+  const amount = Number(document.getElementById('d_amount').value);
+  const trx = document.getElementById('d_trx').value.trim();
+  const pin = document.getElementById('d_pin').value.trim();
+  if(!name || !amount || !trx){ alert('Please complete all fields.'); return; }
+  if(pin !== '7890'){ alert('Incorrect PIN'); return; }
 
-  if(!name){ alert('براہ کرم اپنا نام درج کریں'); return; }
-  if(!amount || amount <= 0){ alert('درست رقم درج کریں'); return; }
-  if(!trx){ alert('Transaction ID درج کریں'); return; }
-  if(pin !== PIN){ alert('غلط PIN'); return; }
-
-  const dep = { id: 'D' + Date.now(), method, name, amount, trx, at: Date.now() };
-  state.deposits.push(dep);
-  state.balance = Number(state.balance) + Number(amount);
-  saveState();
-  updateBalanceUI();
+  const deposits = storageGet(KEY_DEPOSITS,[]);
+  const obj = { id:'D'+Date.now(), userId, method, name, amount, trx, at:Date.now(), status:'pending' };
+  deposits.push(obj); storageSet(KEY_DEPOSITS,deposits);
+  document.getElementById('d_trx').value=''; document.getElementById('d_pin').value='';
+  alert('Deposit request submitted. Admin will approve it to add balance.');
   renderDepositHistory();
-
-  // clear trx & pin (keep name for convenience)
-  document.getElementById('depositTrx').value = '';
-  document.getElementById('depositPin').value = '';
-
-  alert('Deposit successful — your balance updated.');
 }
 
-/* ================
-   Withdraw
-   ================ */
-function renderPendingList(){
-  const list = document.getElementById('pendingList');
-  if(!list) return;
-  list.innerHTML = '';
-  if(state.pendingWithdraws.length === 0){
-    list.innerHTML = '<div class="muted">کوئی pending withdraws نہیں۔</div>';
-    return;
-  }
-  state.pendingWithdraws.slice().reverse().forEach(p=>{
-    const div = document.createElement('div');
-    div.className = 'pending-item';
-    const left = document.createElement('div');
-    left.innerHTML = `<div style="font-weight:800">Rs ${p.amount}</div><div class="muted" style="font-size:13px">${p.method.toUpperCase()} • ${p.number}</div>`;
-    const right = document.createElement('div');
-    if(p.status === 'pending'){
-      const cancelBtn = document.createElement('button');
-      cancelBtn.className = 'submit danger';
-      cancelBtn.style.background = '#ff6b6b';
-      cancelBtn.style.color = '#fff';
-      cancelBtn.style.marginLeft = '10px';
-      cancelBtn.innerText = 'Cancel';
-      cancelBtn.onclick = ()=> cancelWithdraw(p.id);
-      right.appendChild(cancelBtn);
-      const badge = document.createElement('span');
-      badge.className = 'badge';
-      badge.innerText = 'Pending';
-      right.appendChild(badge);
-    } else if(p.status === 'cancelled'){
-      const badge = document.createElement('span');
-      badge.className = 'badge';
-      badge.innerText = 'Cancelled';
-      right.appendChild(badge);
-    } else {
-      const badge = document.createElement('span');
-      badge.className = 'badge';
-      badge.innerText = 'Processed';
-      right.appendChild(badge);
-    }
-    div.appendChild(left);
-    div.appendChild(right);
-    list.appendChild(div);
-  });
+/* RENDER deposit history (last items) */
+function renderDepositHistory(){
+  const deposits = storageGet(KEY_DEPOSITS,[]);
+  const mine = deposits.filter(d=>d.userId===userId).slice(-6).reverse();
+  const el = document.getElementById('deposit_history');
+  if(mine.length===0) el.innerHTML='<div class="muted">No deposit records.</div>';
+  else el.innerHTML = '<strong>Recent deposit requests:</strong><br/>' + mine.map(d=>`${d.method.toUpperCase()} • Rs ${d.amount} • ${d.trx} • ${new Date(d.at).toLocaleString()} • ${d.status}`).join('<br/>');
 }
 
+/* WITHDRAW: create withdraw request and deduct balance immediately (pending) */
 function submitWithdraw(){
-  const method = document.getElementById('withdrawMethod').value;
-  const number = document.getElementById('withdrawNumber').value.trim();
-  const amount = Number(document.getElementById('withdrawAmount').value);
+  const method = document.getElementById('w_method').value;
+  const number = document.getElementById('w_number').value.trim();
+  const amount = Number(document.getElementById('w_amount').value);
+  balances = storageGet(KEY_BALANCES,{});
+  const current = Number(balances[userId]||0);
+  if(!number || !amount){ alert('Complete fields'); return; }
+  if(amount > current){ alert('Insufficient balance'); return; }
 
-  if(!number){ alert('براہ کرم نمبر درج کریں'); return; }
-  if(!amount || amount <= 0){ alert('درست رقم درج کریں'); return; }
-  if(amount > state.balance){ alert('Insufficient balance'); return; }
+  // deduct immediate and create pending record
+  balances[userId] = current - amount;
+  storageSet(KEY_BALANCES,balances);
 
-  const id = 'W' + Date.now();
-  const entry = { id, method, number, amount, requestedAt: Date.now(), status: 'pending' };
-  state.pendingWithdraws.push(entry);
-  state.balance = Number(state.balance) - Number(amount);
-  saveState();
-  updateBalanceUI();
-  renderPendingList();
-  setAutoCancel(entry);
+  const withdraws = storageGet(KEY_WITHDRAWS,[]);
+  const w = { id:'W'+Date.now(), userId, method, number, amount, requestedAt:Date.now(), status:'pending' };
+  withdraws.push(w); storageSet(KEY_WITHDRAWS,withdraws);
 
-  // clear form
-  document.getElementById('withdrawNumber').value = '';
-  document.getElementById('withdrawAmount').value = '';
-
-  alert('Withdraw submitted and now Pending. If not processed within 1 hour it will be returned automatically.');
+  alert('Withdraw request submitted and is pending approval. If not processed within 1 hour it will be returned automatically.');
+  document.getElementById('w_number').value=''; document.getElementById('w_amount').value='';
+  updateBalanceUI(); renderPendingWithdraws();
 }
 
-function cancelWithdraw(id){
-  const idx = state.pendingWithdraws.findIndex(p=>p.id===id);
-  if(idx === -1) return;
-  const w = state.pendingWithdraws[idx];
-  if(w.status !== 'pending') return;
-  // clear timer if exists
-  if(timers.has(id)){ clearTimeout(timers.get(id)); timers.delete(id); }
-  w.status = 'cancelled';
-  state.balance = Number(state.balance) + Number(w.amount);
-  saveState();
-  updateBalanceUI();
-  renderPendingList();
-  alert('Withdraw cancelled and amount returned to balance.');
+/* pending withdraws UI (for this user) and auto-cancel check */
+function renderPendingWithdraws(){
+  const listEl = document.getElementById('pending_withdraws');
+  const withdraws = storageGet(KEY_WITHDRAWS,[]).filter(w=>w.userId===userId).slice().reverse();
+  if(withdraws.length===0){ listEl.innerHTML='<div class="muted">No pending withdraws.</div>'; return; }
+  listEl.innerHTML = withdraws.map(w=>{
+    const elapsed = Math.floor((Date.now()-w.requestedAt)/60000);
+    return `<div class="pending-item"> <div>Rs ${w.amount} • ${w.method.toUpperCase()} • ${w.number}<div class="muted" style="font-size:12px">${new Date(w.requestedAt).toLocaleString()}</div></div><div><span class="muted">${w.status}</span><div class="muted" style="font-size:12px;text-align:right">${elapsed} min</div></div></div>`;
+  }).join('');
 }
 
-function setAutoCancel(entry){
-  // compute remaining ms in case loaded from storage with elapsed time
-  const elapsed = Date.now() - entry.requestedAt;
-  const remaining = Math.max(0, ONE_HOUR_MS - elapsed);
-  if(remaining <= 0){
-    // immediate cancel
-    autoCancel(entry.id);
-    return;
-  }
-  const tid = setTimeout(()=> autoCancel(entry.id), remaining);
-  timers.set(entry.id, tid);
-}
-
-function autoCancel(id){
-  const idx = state.pendingWithdraws.findIndex(p=>p.id===id);
-  if(idx === -1) return;
-  const w = state.pendingWithdraws[idx];
-  if(w.status !== 'pending') return;
-  w.status = 'cancelled';
-  state.balance = Number(state.balance) + Number(w.amount);
-  // clear timer handle
-  if(timers.has(id)){ clearTimeout(timers.get(id)); timers.delete(id); }
-  saveState();
-  updateBalanceUI();
-  renderPendingList();
-  // no alert to avoid noisy behavior, but you can enable it
-  // alert('A pending withdraw was not processed and has been returned to your balance.');
-}
-
-/* ================
-   Referral
-   ================ */
-function setupReferral(){
-  const link = `${location.origin}${location.pathname}#ref?uid=${state.userId}`;
-  document.getElementById('refLink').value = link;
-}
-
-function copyReferral(){
-  const inp = document.getElementById('refLink');
-  inp.select();
-  inp.setSelectionRange(0, 99999);
-  document.execCommand('copy');
-  alert('Referral link copied.');
-}
-
-/* ================
-   Init
-   ================ */
-function init(){
-  loadState();
-  updateBalanceUI();
-  renderPlans();
-  renderDepositHistory();
-  renderPendingList();
-  setupReferral();
-  // restore timers for pending withdraws
-  state.pendingWithdraws.forEach(w=>{
-    if(w.status === 'pending'){
-      setAutoCancel(w);
+/* AUTO-CANCEL withdraws older than 1 hour: run on load and periodically */
+function autoCancelExpiredWithdraws(){
+  const withdraws = storageGet(KEY_WITHDRAWS,[]);
+  let changed=false; balances = storageGet(KEY_BALANCES,{});
+  withdraws.forEach(w=>{
+    if(w.status==='pending' && (Date.now()-w.requestedAt) > 3600000){
+      // return amount
+      balances[w.userId] = (balances[w.userId]||0) + Number(w.amount);
+      w.status='cancelled';
+      changed=true;
     }
   });
+  if(changed){ storageSet(KEY_WITHDRAWS,withdraws); storageSet(KEY_BALANCES,balances); updateBalanceUI(); }
+}
 
-  // handle fragment navigation (optional)
-  const hash = location.hash.replace('#','');
-  if(hash.startsWith('ref?')) showPage('referral');
+/* REFERRAL */
+function initReferral(){
+  const linkEl = document.getElementById('ref_link');
+  const link = location.origin + location.pathname + '?ref=' + userId;
+  linkEl.value = link;
+}
+function copyRef(){ const el=document.getElementById('ref_link'); el.select(); document.execCommand('copy'); alert('Referral link copied'); }
+
+/* INIT */
+function init(){
+  renderPlans(); updateBalanceUI(); renderDepositHistory(); renderPendingWithdraws(); initReferral();
+  autoCancelExpiredWithdraws();
+  // periodic check every 30s
+  setInterval(()=>{ renderPendingWithdraws(); autoCancelExpiredWithdraws(); updateBalanceUI(); },30000);
+  // show home by default
+  show('home');
 }
 window.addEventListener('load', init);
-
-/* Expose some functions for buttons */
-window.showPage = showPage;
-window.buyNow = buyNow;
-window.submitDeposit = submitDeposit;
-window.submitWithdraw = submitWithdraw;
-window.copyReferral = copyReferral;
-
 </script>
 </body>
 </html>
