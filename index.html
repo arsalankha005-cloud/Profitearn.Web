@@ -93,7 +93,7 @@
   <h2 class="text-center text-success fw-bold mb-4">Referral Program</h2>
   <div class="card bg-dark text-light p-4 text-center">
     <p>Invite friends and earn <strong>10% commission</strong> on each referral!</p>
-    <input type="text" id="refLink" class="form-control mb-3 text-center" value="https://profit-earn.com/ref?id=12345" readonly>
+    <input type="text" id="refLink" class="form-control mb-3 text-center" readonly>
     <button class="btn btn-success" onclick="copyRef()">Copy Referral Link</button>
   </div>
 </section>
@@ -113,17 +113,38 @@ function showSection(id) {
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
   event.target.classList.add('active');
 }
+
+// --- Referral Link System ---
+function generateRefLink() {
+  let userId = localStorage.getItem("userId");
+  if (!userId) {
+    userId = Math.floor(Math.random() * 100000);
+    localStorage.setItem("userId", userId);
+  }
+  const refLink = `${window.location.origin}${window.location.pathname}?ref=${userId}`;
+  document.getElementById("refLink").value = refLink;
+}
 function copyRef() {
-  var copyText = document.getElementById("refLink");
-  copyText.select(); copyText.setSelectionRange(0, 99999);
-  document.execCommand("copy");
+  const copyText = document.getElementById("refLink");
+  navigator.clipboard.writeText(copyText.value);
   alert("Referral link copied!");
 }
+
+// Detect if user came from referral
+const params = new URLSearchParams(window.location.search);
+const ref = params.get("ref");
+if (ref) {
+  localStorage.setItem("referredBy", ref);
+  console.log("Referred by ID:", ref);
+}
+
 function copyText(id) {
-  var text = document.getElementById(id);
+  const text = document.getElementById(id);
   navigator.clipboard.writeText(text.textContent);
   alert("Copied: " + text.textContent);
 }
+
+window.onload = generateRefLink;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
