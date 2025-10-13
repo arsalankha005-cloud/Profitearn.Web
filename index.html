@@ -13,9 +13,9 @@
   .content-section { display: none; animation: fadeIn 0.5s ease-in-out; }
   .content-section.active { display: block; }
   @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
-  .plan-card { background: #101828; border-radius: 12px; padding: 20px; box-shadow: 0 5px 12px rgba(0,0,0,0.4); transition: transform 0.3s; }
+  .plan-card { background: #101828; border-radius: 12px; padding: 20px; box-shadow: 0 5px 12px rgba(0,0,0,0.4); transition: transform 0.3s; text-align:center; }
   .plan-card:hover { transform: translateY(-5px); }
-  .plan-title { color: #22c55e; font-weight: 600; }
+  .plan-title { color: #22c55e; font-weight: 600; font-size: 1.3rem; margin-bottom: 10px; }
   .btn-success { background-color: #22c55e; border: none; }
   .footer { background-color: #09121b; padding: 15px; text-align: center; color: #9aa4af; }
   .whatsapp-btn { position: fixed; bottom: 20px; right: 20px; background: #25D366; color: white; padding: 12px 18px; border-radius: 50px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
@@ -46,12 +46,36 @@
 <section id="home" class="content-section active container py-4">
   <h2 class="text-center text-success fw-bold mb-4">VIP Investment Plans (30 Days)</h2>
   <div class="row g-4">
-    <div class="col-md-4"><div class="plan-card"><div class="plan-title">VIP 1</div><p>Price: Rs 350</p><p>Daily Profit: Rs 55</p><p>Duration: 30 Days</p><p>Tasks: 2 TikTok Videos/day</p></div></div>
-    <div class="col-md-4"><div class="plan-card"><div class="plan-title">VIP 2</div><p>Price: Rs 720</p><p>Daily Profit: Rs 110</p><p>Duration: 30 Days</p><p>Tasks: 3 TikTok Videos/day</p></div></div>
-    <div class="col-md-4"><div class="plan-card"><div class="plan-title">VIP 3</div><p>Price: Rs 1500</p><p>Daily Profit: Rs 220</p><p>Duration: 30 Days</p><p>Tasks: 4 TikTok Videos/day</p></div></div>
-    <div class="col-md-4"><div class="plan-card"><div class="plan-title">VIP 4</div><p>Price: Rs 4000</p><p>Daily Profit: Rs 440</p><p>Duration: 30 Days</p><p>Tasks: 5 TikTok Videos/day</p></div></div>
-    <div class="col-md-4"><div class="plan-card"><div class="plan-title">VIP 5</div><p>Price: Rs 9000</p><p>Daily Profit: Rs 990</p><p>Duration: 30 Days</p><p>Tasks: 6 TikTok Videos/day</p></div></div>
-    <div class="col-md-4"><div class="plan-card"><div class="plan-title">VIP 6</div><p>Price: Rs 15000</p><p>Daily Profit: Rs 1760</p><p>Duration: 30 Days</p><p>Tasks: 8 TikTok Videos/day</p></div></div>
+    <div class="col-md-4"><div class="plan-card">
+      <div class="plan-title">VIP 1</div>
+      <p>Price: Rs 350</p><p>Daily Profit: Rs 55</p><p>Duration: 30 Days</p><p>Tasks: 2 TikTok Videos/day</p>
+      <button class="btn btn-success w-100" onclick="buyNow()">Buy Now</button>
+    </div></div>
+    <div class="col-md-4"><div class="plan-card">
+      <div class="plan-title">VIP 2</div>
+      <p>Price: Rs 720</p><p>Daily Profit: Rs 110</p><p>Duration: 30 Days</p><p>Tasks: 3 TikTok Videos/day</p>
+      <button class="btn btn-success w-100" onclick="buyNow()">Buy Now</button>
+    </div></div>
+    <div class="col-md-4"><div class="plan-card">
+      <div class="plan-title">VIP 3</div>
+      <p>Price: Rs 1500</p><p>Daily Profit: Rs 220</p><p>Duration: 30 Days</p><p>Tasks: 4 TikTok Videos/day</p>
+      <button class="btn btn-success w-100" onclick="buyNow()">Buy Now</button>
+    </div></div>
+    <div class="col-md-4"><div class="plan-card">
+      <div class="plan-title">VIP 4</div>
+      <p>Price: Rs 4000</p><p>Daily Profit: Rs 440</p><p>Duration: 30 Days</p><p>Tasks: 5 TikTok Videos/day</p>
+      <button class="btn btn-success w-100" onclick="buyNow()">Buy Now</button>
+    </div></div>
+    <div class="col-md-4"><div class="plan-card">
+      <div class="plan-title">VIP 5</div>
+      <p>Price: Rs 9000</p><p>Daily Profit: Rs 990</p><p>Duration: 30 Days</p><p>Tasks: 6 TikTok Videos/day</p>
+      <button class="btn btn-success w-100" onclick="buyNow()">Buy Now</button>
+    </div></div>
+    <div class="col-md-4"><div class="plan-card">
+      <div class="plan-title">VIP 6</div>
+      <p>Price: Rs 15000</p><p>Daily Profit: Rs 1760</p><p>Duration: 30 Days</p><p>Tasks: 8 TikTok Videos/day</p>
+      <button class="btn btn-success w-100" onclick="buyNow()">Buy Now</button>
+    </div></div>
   </div>
 </section>
 
@@ -61,9 +85,9 @@
   <div class="card bg-dark text-light p-4">
     <p><strong>Deposit through:</strong></p>
     <ul>
-      <li>JazzCash: <strong id="jazzNum">03218684114</strong> 
+      <li>JazzCash: <strong id="jazzNum">03066509262</strong> 
         <button class="btn btn-sm btn-outline-success ms-2" onclick="copyText('jazzNum')">Copy</button></li>
-      <li>EasyPaisa: <strong id="easyNum">03706502150</strong> 
+      <li>EasyPaisa: <strong id="easyNum">03154458723</strong> 
         <button class="btn btn-sm btn-outline-success ms-2" onclick="copyText('easyNum')">Copy</button></li>
     </ul>
     <p>After sending payment, enter your transaction ID below:</p>
@@ -112,6 +136,12 @@ function showSection(id) {
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
   event.target.classList.add('active');
+}
+
+// "Buy Now" → goes to Deposit Section
+function buyNow() {
+  showSection('deposit');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // --- Referral Link System ---
